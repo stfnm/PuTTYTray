@@ -997,6 +997,11 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
 		MakeWindowTransparent(hwnd, cfg.transparency);
 	}
 
+	/*
+	 * HACK: PuttyTray / Global Hide Hotkey: WIN + 0 (numpad)
+	 */
+	RegisterHotKey(hwnd, 0xB055, MOD_WIN, VK_NUMPAD0);
+
     while (1) {
 	HANDLE *handles;
 	int nhandles, n;
@@ -3545,6 +3550,17 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 	/*
 	 * END HACKS: PuttyTray / Trayicon & Reconnect
 	 */
+
+	/*
+	     * HACK: PuttyTray / Global Hide Hotkey
+	     */
+	case WM_HOTKEY:
+		if (wParam == 0xB055) {
+			taskbar_addicon(cfg.win_name_always ? window_name : icon_name, TRUE);
+			ShowWindow(hwnd, SW_HIDE);
+			windowMinimized = TRUE;
+		}
+		break;
 
 	default:
 	if (message == wm_mousewheel || message == WM_MOUSEWHEEL) {
